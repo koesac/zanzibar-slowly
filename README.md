@@ -1,27 +1,23 @@
 # Zanzibar, slowly.
 
-A no-build, mobile-first December 2026 trip journal. The public website is self-contained in index.html; no npm, API keys, remote fonts, analytics or database.
+A mobile-first December 2026 trip journal. Static HTML/CSS/JS; no npm, API keys, database or analytics. Python standard library assembles the deployable site.
 
-## Publish
+## Build and publish
 
-In repository Settings → Pages → Build and deployment, choose GitHub Actions. Run the Deploy Zanzibar trip workflow or push to main. Adding the workflow does not itself guarantee Pages is enabled. The expected default URL after a successful deployment is https://koesac.github.io/zanzibar-slowly/ — check the Actions deployment output before treating it as live.
+Run `python3 tools/build.py`, then `python3 -m http.server 8080 --directory _site`. Preview http://localhost:8080. Root index.html is the editorial source; preview and deploy _site for the enhanced version. The build replaces stock images and adds destination photography, credits and system-controlled appearance. GitHub Pages must use GitHub Actions; the workflow builds and publishes _site. Check Actions for deployment status. Expected URL: https://koesac.github.io/zanzibar-slowly/.
 
 ## Update
 
-Edit the clearly labelled days, places, checklist and official arrays near the bottom of index.html. Place IDs should remain stable. Update the editorial dates, hotel sections and summary counts in the HTML as needed. CSS and JavaScript are inline so this stays a portable, single-page site. Local preview: python3 -m http.server 8080.
+Edit days, places, checklist and official arrays in index.html; keep place IDs stable. Update dates and summary counts when needed. Photography records, source links and licences are in assets/photos.json; styling and gallery behaviour are in assets/enrich.css and assets/enrich.js. Update tools/build.py if its source HTML markers change. Do not edit _site manually.
 
-## Source and uncertainty
+## Appearance and photographs
 
-Based on the supplied Zanzibar.pdf. The plan keeps Jambiani first and Stone Town second, unlike the generic AI itinerary in the PDF. Suggested activities are not bookings. Planned arrival is 17 December, but the original Blue Oyster search started on 16 December: confirm check-in. Thirteen planned hotel nights means ten in Jambiani (17–27 December) plus three in Stone Town (27–30 December). Flight numbers, airports and times are not invented. Restaurant entries are unverified research leads; none is marked allergy-safe. Maps are search links, not verified pins. Follow current official guidance for entry and health. No prices, exchange rate, tide forecast or opening times are presented as live.
+Light/dark follows prefers-color-scheme, including live changes, without a stored override or toggle. Native controls and browser theme colour follow the appearance; print uses light colours. Four destination photographs: Jambiani seaweed farm (Matt Kieffer, CC BY-SA 2.0); Harvesting seaweed in Jambiani (Yann Macherez, source crop/rotation by Andrew J.Kurbiko, CC BY-SA 4.0); carved Stone Town door (Richard Mortel, CC BY 2.0); Jozani entrance (MacElwee, CC BY 2.0). Full source/licence links and resizing/layout-cropping notices appear in gallery credits. Image adaptations retain the stated licences. These are not hotel or tour-operator photographs.
 
-## Privacy
+The build needs no network access. Images load from Wikimedia's external upload server using thumbnail URLs derived from verified Commons filenames. Their live availability is not guaranteed; source links and unavailable-image messages remain. Do not add copyrighted hotel images without permission or an appropriate licence. Focused fixture tests cover build substitutions, image/card/day integration, light/dark changes, gallery Escape/focus, 390px overflow and print. External image responses were mocked; full live deployment and image availability still need checking.
 
-This public repository includes exact planned dates and hotels. It excludes the PDF, booking/session identifiers, medical records, unverified hospital recommendations and the machine-translated allergy statement. Private notes, checklist and saved places use browser localStorage: they are not encrypted, do not sync and are not committed. Export private JSON backups before clearing storage; never add those backups to the repository. Other projects on the same GitHub Pages hostname share an origin, so keep those projects trustworthy or use a separate domain for stronger separation.
+## Privacy and uncertainty
 
-## Images
+Source: supplied Zanzibar.pdf. Jambiani first, Stone Town second. Arrival is planned for 17 December but the Blue Oyster search began on 16 December: confirm check-in. Thirteen planned nights means ten in Jambiani and three in Stone Town. Activities are suggestions, not bookings. Restaurant leads are unverified, not allergy-safe endorsements. Check current official entry and health guidance.
 
-The two Unsplash-hosted coastal stock photographs are illustrative, not verified Zanzibar or hotel photographs. This is stated in alt text and the on-site image information dialog. Replace with owned destination photography later. Hotel panels are decorative CSS illustrations. External images, maps and booking pages require an internet connection; this version makes no offline guarantee.
-
-## Checks before travel or deployment
-
-Verify external links and current requirements. Test mobile and desktop layout, day navigation, search and area/category filters, saves and checklist persistence, backup import/export, dialog keyboard handling and print. Keep emergency information and travel documents separately offline.
+The public repository contains planned dates and hotel names, not booking/session codes, the PDF or personal medical details. Notes, checklist and saves remain browser-local; not encrypted, synced or sent to GitHub. Never commit private backups. GitHub Pages projects on the same hostname share an origin. Keep emergency information and documents separately offline; external images and links require internet.

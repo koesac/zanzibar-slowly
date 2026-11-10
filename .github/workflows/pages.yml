@@ -18,11 +18,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Prepare public site
-        run: |
-          mkdir _site
-          cp index.html _site/index.html
-          touch _site/.nojekyll
+      - name: Build destination photographs and automatic appearance
+        run: python3 tools/build.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
