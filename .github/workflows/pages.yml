@@ -28,9 +28,10 @@ jobs:
 
       - name: Build enhanced static site
         run: |
-          python3 -m py_compile tools/build.py
+          python3 -m py_compile tools/build.py tools/photo_pipeline.py
           python3 -m json.tool assets/photos.json > /dev/null
           python3 tools/build.py
+          python3 tools/photo_pipeline.py
 
       - name: Validate deployment files
         run: |
@@ -38,6 +39,10 @@ jobs:
           test -s _site/assets/enrich.css
           test -s _site/assets/enrich.js
           test -s _site/assets/photos.json
+          test -s _site/assets/photo-layout.css
+          test -s _site/assets/photo-coverage.js
+          test -s _site/assets/resolved-photos.json
+          test -s _site/assets/photo-report.json
           test -f _site/.nojekyll
           echo 'Files to publish:'
           find _site -type f -print
