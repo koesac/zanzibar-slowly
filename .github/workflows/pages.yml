@@ -1,29 +1,82 @@
 name: Deploy Zanzibar trip
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
 permissions:
   contents: read
-  pages: write
-  id-token: write
+
 concurrency:
   group: pages
   cancel-in-progress: false
+
 jobs:
+  build:
+    name: Build and upload site
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6.0.0
+
+      - name: Build enhanced static site
+        run: |
+          python3 -m py_compile tools/build.py
+          python3 -m json.tool assets/photos.json > /dev/null
+          python3 tools/build.py
+
+      - name: Validate deployment files
+        run: |
+          test -s _site/index.html
+          test -s _site/assets/enrich.css
+          test -s _site/assets/enrich.js
+          test -s _site/assets/photos.json
+          test -f _site/.nojekyll
+          echo 'Files to publish:'
+          find _site -type f -print
+
+      - name: Upload GitHub Pages artifact
+        id: upload
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          name: github-pages
+          path: _site
+          include-hidden-files: true
+          retention-days: 3
+
+      - name: Verify artifact upload result
+        env:
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact_id }}
+        run: |
+          if [ -z "$ARTIFACT_ID" ]; then
+            echo '::error::Pages upload returned no artifact ID; deployment will not run.'
+            exit 1
+          fi
+          printf 'Uploaded github-pages artifact: %s\n' "$ARTIFACT_ID"
+          printf '### Pages build\n\nUploaded artifact ID: `%s`\n' "$ARTIFACT_ID" >> "$GITHUB_STEP_SUMMARY"
+
   deploy:
-    runs-on: ubuntu-latest
+    name: Publish GitHub Pages
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Build destination photographs and automatic appearance
-        run: python3 tools/build.py
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-      - name: Deploy
+      - name: Deploy uploaded site
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5.0.1
+        with:
+          artifact_name: github-pages
