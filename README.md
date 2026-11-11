@@ -8,6 +8,8 @@ Run `python3 tools/build.py`, then `python3 tools/photo_pipeline.py`, then `pyth
 
 ## Editing
 
+The current Jambiani accommodation is in assets/accommodation.json: The Loop Beach Resort, Jambiani, Tanzania, check-in 17 December and check-out 27 December 2026 (10 nights), confirmed by the traveller on 11 November 2026. This record supersedes the original Blue Oyster references in the editorial index.html template. tools/build.py applies the current hotel card, links, arrival/transfer wording, date note and checklist wording to the published site. Edit this JSON for first-leg hotel details; also review the itinerary arrays if changing the actual travel dates. The Stone Town leg remains unchanged.
+
 Edit days, places, checklist and official arrays in index.html. Keep place IDs stable. Update dates and summary counts when needed. Original photography records are in assets/photos.json. tools/build.py creates the base gallery and loads assets/enrich.css/js. tools/photo_pipeline.py adds mobile sizing, extra photo coverage and local photo hosting. Update HTML markers in the build scripts if the source structure changes. Do not edit _site manually.
 
 ## Mobile image sizing
@@ -24,6 +26,6 @@ Focused fixture tests cover 320/390/430px mobile, landscape, thumbnail and light
 
 ## Privacy and uncertainty
 
-The source is the supplied Zanzibar.pdf. Dates and hotel names are public; activities are suggestions, not reservations. Confirm the 16/17 December Blue Oyster check-in discrepancy. No invented flight details, allergy-safe restaurant endorsements or live forecasts. Check current official entry and health guidance.
+The original source is the supplied Zanzibar.pdf, with the first-leg hotel and dates superseded by the traveller's 11 November 2026 update. Dates and hotel names are public; activities are suggestions, not reservations. The 16/17 December hotel discrepancy is resolved: The Loop check-in is 17 December. No invented flight details, allergy-safe restaurant endorsements or live forecasts. Check current official entry and health guidance.
 
 The PDF, booking/session codes and personal medical details are excluded. Notes, checklist and saves remain browser-local, not encrypted or synced. Never commit private exports. Projects on the same Pages hostname share an origin. Keep travel documents and emergency information separately offline.

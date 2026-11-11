@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import date
 import html,json,re,shutil
 
 ROOT=Path(__file__).resolve().parent.parent
@@ -10,7 +11,25 @@ def credit(p):
 def img(p,eager=False):
     e=html.escape
     return f'<img src="{e(p["src"])}" alt="{e(p["title"])}" width="{p["width"]}" height="{p["height"]}" loading="{"eager" if eager else "lazy"}" decoding="async"'+(' fetchpriority="high"' if eager else '')+'>'
-source=(ROOT/'index.html').read_text()
+def accommodation(source,stay):
+    start=date.fromisoformat(stay['check_in']);end=date.fromisoformat(stay['check_out'])
+    if end<=start:raise ValueError('Hotel checkout must be after check-in')
+    label=f'{start.day}–{end.day} {start.strftime("%B").upper()}' if (start.year,start.month)==(end.year,end.month) else f'{start:%d %b %Y}–{end:%d %b %Y}'
+    e=html.escape
+    panel=f"<article class='stay'><div class='stay-art' aria-hidden='true'></div><div class='stay-body'><div class='meta'><span>{e(label)}</span><span>{(end-start).days} NIGHTS</span></div><h3>{e(stay['name'])}</h3><p>{e(stay['location'])}. Our beach chapter: slow mornings, a changing ocean and days with very little on the agenda.</p><div class='links'><a href='{e(stay['website'],quote=True)}' target='_blank' rel='noopener noreferrer'>Hotel website ↗</a><a href='{e(stay['listing'],quote=True)}' target='_blank' rel='noopener noreferrer'>Booking listing ↗</a><a href='{e(stay['map'],quote=True)}' target='_blank' rel='noopener noreferrer'>Map ↗</a></div></div></article>"
+    source,n=re.subn(r"(<div class='stays'>)<article class='stay'>.*?</article>",lambda m:m[1]+panel,source,count=1,flags=re.S)
+    if n!=1:raise ValueError('Jambiani stay panel marker changed')
+    note='<details><summary>Our hotel dates</summary><p>Jambiani: '+e(stay['name'])+', '+e(label.lower())+' '+str(start.year)+'. The first-leg stay dates were confirmed by us on 11 November 2026. Flight numbers, airports, local times and transfers still need adding.</p></details>'
+    source,n=re.subn(r'<details><summary>A small date detail to confirm</summary><p>.*?</p></details>',lambda m:note,source,count=1,flags=re.S)
+    if n!=1:raise ValueError('Original hotel-date note marker changed')
+    name=stay['name'].replace('\\','\\\\').replace("'","\\'").replace('<','\\u003c')
+    source=source.replace('transfer to Blue Oyster and take the rest of the day slowly. Check-in date needs confirming.','transfer to '+name+' and take the rest of the day slowly.')
+    source=source.replace('Check out of Blue Oyster and transfer to Dhow Palace.','Check out of '+name+' and transfer to Dhow Palace.')
+    source=source.replace('Confirm hotel dates, especially Blue Oyster check-in','Review hotel confirmations and check-in details')
+    source=source.replace('Content prepared 10 November 2026','Content updated 11 November 2026')
+    if any(old in source for old in ('Blue Oyster','blueoyster','blue-oyster','Check-in date needs confirming')):raise ValueError('Outdated hotel detail remains in output')
+    return source
+source=accommodation((ROOT/'index.html').read_text(),json.loads((ROOT/'assets/accommodation.json').read_text())['jambiani'])
 for old,key in [('photo-1500375592092-40eb2168fd21','coast'),('photo-1510414842594-a61c69b5ae57','seaweed')]:
     source,n=re.subn(r'<img[^>]*'+re.escape(old)+r'[^>]*>',lambda m:img(photos[key],key=='coast'),source)
     if n!=1:raise SystemExit('Expected exactly one stock photograph: '+old)
